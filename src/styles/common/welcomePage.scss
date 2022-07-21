@@ -22,8 +22,12 @@ video {
 
 .welcomePage-item {
   margin: 1vw;
+  padding: 1vw;
+  backdrop-filter: 10px;
   color: black;
   border: 1px solid black;
+  border-radius: 1vw;
+  box-shadow: 1px 1px black;
 }
 .welcomePage-item.nav {
   font-size: x-large;
@@ -34,7 +38,22 @@ video {
   transition: 1s ease-in-out;
 }
 .welcomePage-item.nav:hover {
-  transform: scale(1.3);
   color: white;
   background-color: darkorange;
+}
+
+.animation_start_btn {
+  animation: start_btn_scale infinite 3s;
+}
+
+@keyframes start_btn_scale {
+  from {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  to {
+    transform: scale(1);
+  }
 }

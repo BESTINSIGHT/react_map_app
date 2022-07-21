@@ -1,4 +1,4 @@
-import vid from "../assets/background_video.mp4";
+//import vid from "../assets/background_video.mp4";
 
 const WelcomePage = ({ setCurrentNav }) => {
   return (
@@ -7,9 +7,10 @@ const WelcomePage = ({ setCurrentNav }) => {
         video dose't support this page!!
       </video> */}
       <div className="welcomePage-wrpper">
-        <div className="welcomePage-item">welcome to my google maps!!</div>
+        <div className="welcomePage-item">Hello There!</div>
+        <div className="welcomePage-item">Welcome To My Google Maps!</div>
         <div
-          className="welcomePage-item nav cursor-point"
+          className="welcomePage-item nav cursor-point animation_start_btn"
           onClick={() => {
             setCurrentNav("HomePage");
           }}
