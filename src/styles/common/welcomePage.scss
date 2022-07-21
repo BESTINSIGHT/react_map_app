@@ -1,3 +1,5 @@
+$commonColor : black;
+
 video {
   position: fixed;
   right: 0;
@@ -7,7 +9,7 @@ video {
   width: auto;
   height: auto;
   background-size: cover;
-  z-index: -100;
+  z-index: -10;
 }
 
 .welcomePage-wrpper {
@@ -21,25 +23,26 @@ video {
 }
 
 .welcomePage-item {
+  background-color: rgba($color: #c9c3b9, $alpha: .2);
   margin: 1vw;
   padding: 1vw;
   backdrop-filter: 10px;
-  color: black;
-  border: 1px solid black;
+  color: $commonColor;
+  border: 1px solid $commonColor;
   border-radius: 1vw;
-  box-shadow: 1px 1px black;
+  box-shadow: 1px 1px $commonColor;
 }
 .welcomePage-item.nav {
   font-size: x-large;
   font-weight: 900;
   margin: 1vw;
-  color: black;
-  border: 1px solid black;
+  color: $commonColor;
+  border: 1px solid $commonColor;
   transition: 1s ease-in-out;
 }
 .welcomePage-item.nav:hover {
-  color: white;
-  background-color: darkorange;
+  color: darkslategrey;
+  background-color: rgba($color: #e4ec70, $alpha: .7);
 }
 
 .animation_start_btn {
