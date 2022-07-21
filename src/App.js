@@ -1,12 +1,18 @@
-import logo from "./logo.svg";
+import { useState } from "react";
 import "./App.css";
+import WelcomePage from "./pages/WelcomePage";
+import HomePage from "./pages/HomePage";
 
 function App() {
+  const [currentNav, setCurrentNav] = useState("welcomePage");
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-      </header>
+    <div>
+      {currentNav === "welcomePage" ? (
+        <WelcomePage setCurrentNav={setCurrentNav} />
+      ) : currentNav === "HomePage" ? (
+        <HomePage />
+      ) : null}
     </div>
   );
 }
