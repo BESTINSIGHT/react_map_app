@@ -1,8 +1,0 @@
-ul {
-  list-style: none;
-}
-
-.header-list {
-  display: flex;
-  flex-direction: column;
-}
