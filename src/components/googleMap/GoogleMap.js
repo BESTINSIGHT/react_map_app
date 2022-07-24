@@ -24,8 +24,8 @@ const GoogleMap = ({ className, location }) => {
     window.google.maps.event.addListener(map, "click", (event) => {
       setClickedLocation({
         ...clickedLocation,
-        latitude: event.latLng.lat,
-        longitude: event.latLng.lng,
+        latitude: event.latLng.lat(),
+        longitude: event.latLng.lng(),
         placeId: event.placeId,
       });
     });
