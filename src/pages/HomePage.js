@@ -7,11 +7,9 @@ const HomePage = () => {
     latitude: null,
     longitude: null,
   });
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     getMyCurrentPosition();
-    setIsLoading(false);
   }, []);
 
   function getMyCurrentPosition() {
@@ -39,12 +37,9 @@ const HomePage = () => {
   return (
     <div className="homePage-container">
       <HomeHeader className="homePage-header" />
-      {isLoading
-        ? "로딩 중"
-        : myLocation.latitude &&
-          myLocation.longitude && (
-            <GoogleMap className="homePage-main" location={myLocation} />
-          )}
+      {myLocation.latitude && myLocation.longitude && (
+        <GoogleMap className="homePage-main" location={myLocation} />
+      )}
     </div>
   );
 };
