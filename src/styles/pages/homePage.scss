@@ -1,0 +1,60 @@
+.homeHeader-logo {
+  position: fixed;
+  font-size: larger;
+  top: 0;
+  left: 0;
+  margin: 1vw;
+  color: darkolivegreen;
+  font-weight: bolder;
+  transition: .1s linear;
+}
+
+.homePage-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: large;
+}
+
+.mapPage-main {
+  width: 100%;
+  height: 100%;
+}
+
+ul {
+  list-style: none;
+}
+
+.ul-link {
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.ul-link > li {
+  margin-left: 10%;
+  margin-right: 10%;
+  transition: .2s linear;
+}
+
+.ul-link > li:hover {
+  transform: scale(1.1);
+  color: forestgreen;
+}
+
+.homeHeader-logo:hover {
+  transform: rotateX(360deg);
+}
+
+#search-box {
+  margin: 12px;
+  padding: 5px;
+  width: 30%;
+  height: 22px;
+  border: 1px solid white;
+  border-radius: 10px;
+  box-shadow: 1px 1px lightgrey;
+  font-size: larger;
+  font-weight: bold;
+}

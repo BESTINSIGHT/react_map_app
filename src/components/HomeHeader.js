@@ -1,12 +1,22 @@
+import { Link } from "react-router-dom";
+
 const HomeHeader = ({ className }) => {
   return (
     <header className={`${className}`}>
       <div className="homeHeader-container">
-        <div className="homeHeader-logo">Yunseok Jang</div>
-        <nav className="homeHeader-nav">
-          <button>소개</button>
-          <button>지도</button>
-          <button>맛집 리뷰</button>
+        <div className="homeHeader-logo">
+          <Link to={"/"}>Made By Yunseok Jang</Link>
+        </div>
+        <nav>
+          <ul className="ul-link">
+            <li>
+              <Link to={"/HomePage"}>Home</Link>
+            </li>
+            <li>
+              <Link to={"/MapPage"}>Map</Link>
+            </li>
+            <li>History</li>
+          </ul>
         </nav>
       </div>
     </header>

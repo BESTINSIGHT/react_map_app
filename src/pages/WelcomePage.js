@@ -1,6 +1,7 @@
 //import vid from "../assets/background_video.mp4";
+import { Link } from "react-router-dom";
 
-const WelcomePage = ({ setCurrentNav }) => {
+const WelcomePage = () => {
   return (
     <div>
       {/* <video src={vid} autoPlay loop muted>
@@ -9,14 +10,11 @@ const WelcomePage = ({ setCurrentNav }) => {
       <div className="welcomePage-wrpper">
         <div className="welcomePage-item">Hello There!</div>
         <div className="welcomePage-item">Welcome To My Google Maps!</div>
-        <div
-          className="welcomePage-item nav cursor-point animation_start_btn"
-          onClick={() => {
-            setCurrentNav("HomePage");
-          }}
-        >
-          START
-        </div>
+        <Link to={"/MapPage"}>
+          <div className="welcomePage-item nav cursor-point animation_start_btn">
+            START
+          </div>
+        </Link>
       </div>
     </div>
   );

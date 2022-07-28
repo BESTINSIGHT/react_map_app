@@ -1,0 +1,21 @@
+.btn {
+  cursor: pointer;
+  background-color: white;
+  border: 0 solid white;
+  border-radius: 0.5rem;
+  transition: 0.5s linear;
+  box-shadow: 1px 1px lightgray;
+}
+
+.btn:hover {
+  background-color: darkgreen;
+  color: white;
+}
+
+.btn-sm {
+  font-size: small;
+  width: auto;
+  height: auto;
+  padding: 1%;
+  margin: 10px;
+}
