@@ -1,9 +1,3 @@
-* {
-  font-family: 'Times New Roman', Times, serif;
-  text-decoration-line: none;
-  color: inherit;
-}
-
 $commonColor : black;
 
 video {
@@ -24,8 +18,7 @@ video {
   align-items: center;
   text-align: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
+  height: 100vh;
 }
 
 .welcomePage-item {

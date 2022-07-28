@@ -1,19 +1,25 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 const HomeHeader = ({ className }) => {
   return (
     <header className={`${className}`}>
-      <div className="homeHeader-container">
+      <div className="homePage-header-container">
         <div className="homeHeader-logo">
-          <Link to={"/"}>Made By Yunseok Jang</Link>
+          <NavLink to={"/"} exact={"true"}>
+            Made By Yunseok Jang
+          </NavLink>
         </div>
-        <nav>
+        <nav className="homeHeader-nav-container">
           <ul className="ul-link">
             <li>
-              <Link to={"/HomePage"}>Home</Link>
+              <NavLink to={"/HomePage"} exact={"true"}>
+                Home
+              </NavLink>
             </li>
             <li>
-              <Link to={"/MapPage"}>Map</Link>
+              <NavLink to={"/MapPage"} exact={"true"}>
+                Map
+              </NavLink>
             </li>
             <li>History</li>
           </ul>

@@ -11,7 +11,7 @@ const WelcomePage = () => {
         <div className="welcomePage-item">Hello There!</div>
         <div className="welcomePage-item">Welcome To My Google Maps!</div>
         <Link to={"/MapPage"}>
-          <div className="welcomePage-item nav cursor-point animation_start_btn">
+          <div className="welcomePage-item nav animation_start_btn">
             START
           </div>
         </Link>

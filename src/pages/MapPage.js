@@ -36,11 +36,12 @@ const MapPage = () => {
   };
 
   return (
-    <>
+    <div className="mapPage-container">
+      <HomeHeader />
       {myLocation.latitude && myLocation.longitude && (
         <GoogleMap className="mapPage-main" location={myLocation} />
       )}
-    </>
+    </div>
   );
 };
 

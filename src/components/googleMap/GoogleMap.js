@@ -211,6 +211,7 @@ const GoogleMap = ({ className, location }) => {
 
   return (
     <>
+      <aside className="map-aside"></aside>
       <div id="map" ref={mapRef} className={`${className}`} />
       <input
         id="search-box"

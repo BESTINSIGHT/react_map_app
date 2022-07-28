@@ -1,19 +1,16 @@
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import { pagesRoute } from "./routes/routes";
-import HomeHeader from "./components/HomeHeader";
-import WrapperContainer from "./components/layout/WrapperContainer";
 
 function App() {
   return (
-    <WrapperContainer>
-      <HomeHeader />
+    <div>
       <Routes>
         {pagesRoute.map(({ path, element }) => (
-          <Route key={path} path={path} element={element} />
+          <Route key={path} path={path} element={element} exact></Route>
         ))}
       </Routes>
-    </WrapperContainer>
+    </div>
   );
 }
 
