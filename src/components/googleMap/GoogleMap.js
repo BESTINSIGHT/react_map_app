@@ -3,6 +3,7 @@ import Button from "../Button";
 
 const GoogleMap = ({ className, location }) => {
   const [maps, setMaps] = useState(null);
+  const [placeDetail, setPlaceDetail] = useState({});
   const currentPositionMarker = useRef(null);
   const clickedLocation = useRef({
     latitude: null,
@@ -143,46 +144,30 @@ const GoogleMap = ({ className, location }) => {
         });
 
         if (event.placeId) {
-          /* const myRequest = new Request(
-            `https://maps.googleapis.com/maps/api/place/details/json?key=AIzaSyBh0HWcSzaCKtUzmqqpJEDOsgPvGC0ajYM&language=ko-KR&place_id=${event.placeId}`,
-            {
-              method: "GET",
-              mode: "cors",
-              cache: "default",
-              credentials: "include",
-              referrerPolicy: "Access-Control-Allow-Origin",
+          const request = {
+            placeId: `${event.placeId}`,
+            fields: [
+              "name",
+              "rating",
+              "formatted_phone_number",
+              "geometry",
+              "photo",
+              "formatted_address",
+              "reviews",
+            ],
+          };
+          const service = new window.google.maps.places.PlacesService(map);
+
+          const callback = (place, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+              console.log("place === ", place);
+              //지정한 곳으로 맵 가운데로 이동
+              setPlaceDetail(place);
             }
-          );
-          console.log(myRequest);
-          fetch(myRequest).then((res) => {
-            console.log(res);
-          }); */
+          };
+
+          service.getDetails(request, callback);
         }
-
-        /* var request = {
-          placeId: `${event.placeId}`,
-          fields: ["name", "rating", "formatted_phone_number", "geometry"],
-        };
-
-        service = new window.google.maps.places.PlacesService(map);
-        service.getDetails(request, callback);
-
-        function callback(place, status) {
-          if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-            console.log("place === ", place);
-          }
-        } */
-
-        /* const myHeaders = new Headers({ "Content-Type": "text/xml" });
-        const myRequest = new Request(
-          `https://maps.googleapis.com/maps/api/place/details/json?place_id=${event.placeId}&fields=name&key=AIzaSyBh0HWcSzaCKtUzmqqpJEDOsgPvGC0ajYM`,
-          {
-            method: "GET",
-            headers: myHeaders,
-            mode: "cors",
-          }
-        );
-        fetch(myRequest).then((res) => console.log("res === ", res)); */
 
         console.log("event === ", event);
       });
@@ -211,7 +196,20 @@ const GoogleMap = ({ className, location }) => {
 
   return (
     <>
-      <aside className="map-aside"></aside>
+      {placeDetail.name && (
+        <aside className="map-aside">
+          <header>
+            <Button
+              style={{ position: "absolute", top: "0", right: "0" }}
+              onClick={() => {
+                setPlaceDetail({});
+              }}
+            >
+              닫기
+            </Button>
+          </header>
+        </aside>
+      )}
       <div id="map" ref={mapRef} className={`${className}`} />
       <input
         id="search-box"
