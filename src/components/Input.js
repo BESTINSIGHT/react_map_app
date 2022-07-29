@@ -8,17 +8,19 @@ const Input = ({
   placeholder,
   ref,
 }) => {
-  <Input
-    id={id}
-    className={`${className}`}
-    ref={ref}
-    type={type}
-    style={style}
-    placeholder={placeholder}
-    onChange={onChange}
-  >
-    {children}
-  </Input>;
+  return (
+    <input
+      id={id}
+      className={`${className} input`}
+      ref={ref}
+      type={type}
+      style={style}
+      placeholder={placeholder}
+      onChange={onChange}
+    >
+      {children}
+    </input>
+  );
 };
 
 export default Input;

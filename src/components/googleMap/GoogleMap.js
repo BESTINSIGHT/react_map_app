@@ -1,9 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import Button from "../Button";
+import Input from "../Input";
+import Modal from "../Modal";
+import StarRate from "../StarRate";
 
 const GoogleMap = ({ className, location }) => {
   const [maps, setMaps] = useState(null);
   const [placeDetail, setPlaceDetail] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [starRate, setStareRate] = useState();
   const currentPositionMarker = useRef(null);
   const clickedLocation = useRef({
     latitude: null,
@@ -16,7 +21,6 @@ const GoogleMap = ({ className, location }) => {
     info: [],
     location: null,
   });
-  const [isLoading, setIsLoading] = useState(true);
 
   const initMap = useCallback(() => {
     const loca = { lat: location.latitude, lng: location.longitude };
@@ -174,10 +178,6 @@ const GoogleMap = ({ className, location }) => {
 
       setMaps(map);
     }
-
-    if (mapRef) {
-      setIsLoading(false);
-    }
   }, [mapRef, location, maps]);
 
   useEffect(() => {
@@ -196,20 +196,49 @@ const GoogleMap = ({ className, location }) => {
 
   return (
     <>
-      {placeDetail.name && (
-        <aside className="map-aside">
-          <header>
-            <Button
-              style={{ position: "absolute", top: "0", right: "0" }}
-              onClick={() => {
-                setPlaceDetail({});
-              }}
-            >
-              닫기
-            </Button>
-          </header>
-        </aside>
-      )}
+      <aside className={placeDetail.name ? "show-map-aside" : "hide-map-aside"}>
+        <header style={{ margin: "1%" }}>
+          <Button
+            style={{ width: "35%", height: "10%" }}
+            onClick={() => {
+              setIsModalOpen(true);
+              console.log("리뷰작성");
+            }}
+          >
+            {"리뷰 작성"}
+          </Button>
+          <Button
+            style={{
+              position: "absolute",
+              top: "0",
+              right: "0",
+              margin: "1%",
+            }}
+            onClick={() => {
+              setPlaceDetail({});
+            }}
+          >
+            닫기
+          </Button>
+        </header>
+        {/* <div style={{ overflowY: "auto", height: "80%" }}>
+            {placeDetail.photos.map((photo) => {
+              const photoUrl = photo.getUrl();
+              return (
+                <img
+                  key={photoUrl}
+                  src={photoUrl}
+                  style={{
+                    width: "30%",
+                    height: "20%",
+                    border: "1px solid black",
+                    borderRadius: "10px",
+                  }}
+                />
+              );
+            })}
+          </div> */}
+      </aside>
       <div id="map" ref={mapRef} className={`${className}`} />
       <input
         id="search-box"
@@ -233,8 +262,77 @@ const GoogleMap = ({ className, location }) => {
       >
         My Location
       </Button>
+      <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}>
+        <header style={{ textAlign: "center", margin: "1vw" }}>
+          <div>
+            {placeDetail.name ? placeDetail.name : null}
+            {/* {<StarRate starCount={5} setStareRate={setStareRate} />} */}
+          </div>
+          <Button
+            type={"button"}
+            className={"modal-close-button"}
+            style={{
+              position: "absolute",
+              margin: "1vw",
+              top: "0",
+              right: "0",
+            }}
+            onClick={() => setIsModalOpen(false)}
+          >
+            닫기
+          </Button>
+        </header>
+        <div style={{ display:"inline-block", width: "100%", height: "30vh" }}>
+          <Input
+            type={"text"}
+            placeholder={"제목"}
+            style={{
+              display: "block",
+              width: "80%",
+              height: "10%",
+              margin: "auto",
+              padding: "10px",
+              fontSize: "large",
+              border: "1px solid black",
+              borderRadius: "1vw",
+            }}
+          />
+          <textarea
+            placeholder={"내용"}
+            style={{
+              display: "block",
+              width: "80%",
+              height:"70%",
+              margin: "3vw auto 0 auto",
+              padding: "10px",
+              fontSize: "large",
+              border: "1px solid black",
+              borderRadius: "1vw",
+              resize: "none",
+            }}
+          />
+        </div>
+        <footer
+          style={{
+            position: "absolute",
+            bottom: "0",
+            right: "0",
+            margin: "1vw",
+          }}
+        >
+          <Button type={"button"}>저장</Button>
+          <Button
+            type={"button"}
+            onClick={() => {
+              setIsModalOpen(false);
+            }}
+          >
+            닫기
+          </Button>
+        </footer>
+      </Modal>
     </>
   );
 };
 
-export default GoogleMap;
+export default memo(GoogleMap);
