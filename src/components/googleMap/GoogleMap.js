@@ -8,7 +8,7 @@ const GoogleMap = ({ className, location }) => {
   const [maps, setMaps] = useState(null);
   const [placeDetail, setPlaceDetail] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [starRate, setStareRate] = useState();
+  const [starRate, setStareRate] = useState(0);
   const currentPositionMarker = useRef(null);
   const clickedLocation = useRef({
     latitude: null,
@@ -17,10 +17,6 @@ const GoogleMap = ({ className, location }) => {
   });
   const mapRef = useRef(null);
   const selectedLocationMarker = useRef(null);
-  const [searchAddress, setSearchAddress] = useState({
-    info: [],
-    location: null,
-  });
 
   const initMap = useCallback(() => {
     const loca = { lat: location.latitude, lng: location.longitude };
@@ -103,11 +99,6 @@ const GoogleMap = ({ className, location }) => {
         });
 
         map.fitBounds(bounds);
-
-        setSearchAddress({
-          info: places,
-          location: bounds.getCenter(),
-        });
       });
 
       // 현재위치를 map의 position위치에 마커 생성
@@ -118,11 +109,14 @@ const GoogleMap = ({ className, location }) => {
         animation: window.google.maps.Animation.DROP,
       });
       window.google.maps.event.addListener(map, "click", (event) => {
+        const lat = event.latLng.lat();
+        const lng = event.latLng.lng();
         clickedLocation.current = {
-          latitude: event.latLng.lat(),
-          longitude: event.latLng.lng(),
+          latitude: lat,
+          longitude: lng,
           placeId: event.placeId,
         };
+        map.panTo({ lat: lat, lng: lng });
 
         // 클릭해서 생성한 마커 제거 및 새로 생성
         if (selectedLocationMarker.current) {
@@ -143,7 +137,7 @@ const GoogleMap = ({ className, location }) => {
           map: map,
           title: "Seleted Location",
           icon: svgMarker,
-          position: { lat: event.latLng.lat(), lng: event.latLng.lng() },
+          position: { lat: lat, lng: lng },
           animation: window.google.maps.Animation.DROP,
         });
 
@@ -165,7 +159,6 @@ const GoogleMap = ({ className, location }) => {
           const callback = (place, status) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
               console.log("place === ", place);
-              //지정한 곳으로 맵 가운데로 이동
               setPlaceDetail(place);
             }
           };
@@ -207,37 +200,126 @@ const GoogleMap = ({ className, location }) => {
           >
             {"리뷰 작성"}
           </Button>
-          <Button
-            style={{
-              position: "absolute",
-              top: "0",
-              right: "0",
-              margin: "1%",
-            }}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 320 512"
+            className="close-button"
             onClick={() => {
               setPlaceDetail({});
             }}
           >
-            닫기
-          </Button>
+            <path d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z" />
+          </svg>
         </header>
-        {/* <div style={{ overflowY: "auto", height: "80%" }}>
-            {placeDetail.photos.map((photo) => {
-              const photoUrl = photo.getUrl();
+        <div style={{ textAlign: "center", margin: "1%", color: "orange" }}>
+          {placeDetail.rating
+            ? `총 평점 : ${placeDetail.rating} / 5`
+            : `평점 없음`}
+        </div>
+        <h3 style={{ textAlign: "center", margin: "1%", color: "#006400" }}>
+          {placeDetail.name && `${placeDetail.name}`}
+        </h3>
+        <div style={{ textAlign: "center", margin: "1%" }}>
+          {placeDetail.formatted_address && `${placeDetail.formatted_address}`}
+        </div>
+        <div
+          style={{
+            overflowY: "auto",
+            width: "100%",
+            height: "83%",
+            borderTop: "1px solid grey",
+            borderRadius: "3%",
+          }}
+        >
+          {/* 리뷰 사진 */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              justifyContent: "space-around",
+              alignItems: "center",
+              marginTop: "3%",
+            }}
+          >
+            {placeDetail.photos &&
+              placeDetail.photos.map((photo, index) => {
+                const photoUrl = photo.getUrl();
+                return (
+                  <a
+                    key={`photo-${index}`}
+                    href={photoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      width: "48%",
+                      textAlign: "center",
+                      flexShrink: "1",
+                    }}
+                  >
+                    <img
+                      src={photoUrl}
+                      alt={photoUrl}
+                      style={{
+                        width: "100%",
+                        border: "1px solid lightgrey",
+                        borderRadius: "10px",
+                      }}
+                    />
+                  </a>
+                );
+              })}
+          </div>
+          {/* 리뷰 */}
+          {placeDetail.reviews ? (
+            placeDetail.reviews.map((review, index) => {
               return (
-                <img
-                  key={photoUrl}
-                  src={photoUrl}
+                <div
+                  key={index}
                   style={{
-                    width: "30%",
-                    height: "20%",
-                    border: "1px solid black",
+                    margin: "3% auto 3% auto",
+                    width: "90%",
+                    maxHeight: "50%",
+                    border: "1px solid lightgrey",
                     borderRadius: "10px",
+                    overflowY: "auto",
+                    backgroundColor: "white",
                   }}
-                />
+                >
+                  <div style={{ textAlign: "center", margin: "1%" }}>
+                    {review.rating ? (
+                      <StarRate
+                        maxStarCount={5}
+                        starRate={review.rating}
+                        isAdjustable={false}
+                      />
+                    ) : (
+                      `평점 없음`
+                    )}
+                  </div>
+                  <div style={{ textAlign: "center", margin: "1%" }}>
+                    <a
+                      href={review.author_url && `${review.author_url}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={review.author_url && `${review.author_url}`}
+                    >
+                      {review.author_name &&
+                        `작성자 : ${review.author_name} (${review.relative_time_description})`}
+                    </a>
+                  </div>
+                  <div style={{ margin: "3% 1% 1% 1%" }}>
+                    {review.text ? review.text : `내용 없음`}
+                  </div>
+                </div>
               );
-            })}
-          </div> */}
+            })
+          ) : (
+            <div
+              style={{ textAlign: "center", margin: "5%" }}
+            >{`리뷰가 없습니다.`}</div>
+          )}
+        </div>
       </aside>
       <div id="map" ref={mapRef} className={`${className}`} />
       <input
@@ -262,38 +344,54 @@ const GoogleMap = ({ className, location }) => {
       >
         My Location
       </Button>
+
+      {/* 리뷰 작성 클릭 시 작동 */}
       <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}>
-        <header style={{ textAlign: "center", margin: "1vw" }}>
-          <div>
+        <header
+          style={{
+            textAlign: "center",
+            margin: "1%",
+            borderBottom: "1px solid lightgrey",
+          }}
+        >
+          <h3 style={{ margin: "1%", color: "#006400" }}>
             {placeDetail.name ? placeDetail.name : null}
-            {/* {<StarRate starCount={5} setStareRate={setStareRate} />} */}
-          </div>
-          <Button
-            type={"button"}
-            className={"modal-close-button"}
-            style={{
-              position: "absolute",
-              margin: "1vw",
-              top: "0",
-              right: "0",
-            }}
+          </h3>
+          <StarRate
+            maxStarCount={5}
+            starRate={starRate}
+            setStareRate={setStareRate}
+            isModalOpen={isModalOpen}
+            style={{ marginBottom: "1%" }}
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 320 512"
+            className="close-button"
             onClick={() => setIsModalOpen(false)}
           >
-            닫기
-          </Button>
+            <path d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z" />
+          </svg>
         </header>
-        <div style={{ display:"inline-block", width: "100%", height: "30vh" }}>
+        <div
+          style={{
+            display: "inline-block",
+            width: "100%",
+            height: "80%",
+            margin: "auto",
+          }}
+        >
           <Input
             type={"text"}
             placeholder={"제목"}
             style={{
               display: "block",
-              width: "80%",
-              height: "10%",
+              width: "85%",
+              height: "7%",
               margin: "auto",
-              padding: "10px",
+              padding: "1%",
               fontSize: "large",
-              border: "1px solid black",
+              border: "1px solid lightgrey",
               borderRadius: "1vw",
             }}
           />
@@ -301,12 +399,12 @@ const GoogleMap = ({ className, location }) => {
             placeholder={"내용"}
             style={{
               display: "block",
-              width: "80%",
-              height:"70%",
-              margin: "3vw auto 0 auto",
-              padding: "10px",
+              width: "85%",
+              height: "85%",
+              margin: "1% auto 0 auto",
+              padding: "1%",
               fontSize: "large",
-              border: "1px solid black",
+              border: "1px solid lightgrey",
               borderRadius: "1vw",
               resize: "none",
             }}
@@ -321,14 +419,6 @@ const GoogleMap = ({ className, location }) => {
           }}
         >
           <Button type={"button"}>저장</Button>
-          <Button
-            type={"button"}
-            onClick={() => {
-              setIsModalOpen(false);
-            }}
-          >
-            닫기
-          </Button>
         </footer>
       </Modal>
     </>

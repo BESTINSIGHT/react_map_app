@@ -1,7 +1,5 @@
 import "../styles/components/modal.scss";
 import { useEffect } from "react";
-import Button from "./Button";
-import Input from "./Input";
 
 const Modal = ({ children, isOpen, setIsOpen, className }) => {
   useEffect(() => {
@@ -11,16 +9,21 @@ const Modal = ({ children, isOpen, setIsOpen, className }) => {
       }
     };
     window.addEventListener("keydown", escKeyModalClose);
-    return () => window.removeEventListener("keydown", escKeyModalClose);
+    return () => {
+      console.log("디스럭트");
+      window.removeEventListener("keydown", escKeyModalClose);
+    };
   }, []);
 
   return (
-    <div
-      className={`${className} modal-layout ${
-        isOpen ? "show-modal" : "hide-modal"
-      }`}
-    >
-      <div>{children}</div>
+    <div className={isOpen ? "show-modal-background" : "hide-modal-background"}>
+      <div
+        className={`${className} modal-layout ${
+          isOpen ? "show-modal" : "hide-modal"
+        }`}
+      >
+        {children}
+      </div>
     </div>
   );
 };

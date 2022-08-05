@@ -1,7 +1,17 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-const StarRate = ({ starCount, setStarRate }) => {
-  const [countRate, setCountRate] = useState(new Array(starCount).fill(false));
+const StarRate = ({
+  className,
+  style,
+  maxStarCount,
+  starRate = 0,
+  setStarRate,
+  isModalOpen,
+  isAdjustable = true,
+}) => {
+  const [countRate, setCountRate] = useState(
+    new Array(maxStarCount).fill(false)
+  );
   const [fakeStar, setFakeStar] = useState(null);
 
   const initStarRate = (count) => {
@@ -12,33 +22,56 @@ const StarRate = ({ starCount, setStarRate }) => {
     setCountRate([...stars]);
   };
 
+  useEffect(() => {
+    if (isModalOpen === false) {
+      initStarRate(0);
+    }
+  }, [isModalOpen]);
+
+  useEffect(() => {
+    initStarRate(starRate);
+  }, [starRate]);
+
   return (
-    <div>
+    <div className={className} style={style}>
       {countRate.map((item, index) => {
         return (
           <span
             key={index}
             style={{ margin: "0 3px 0 3px" }}
             className={
-              fakeStar === null
+              isAdjustable === false
+                ? item === true
+                  ? "fa fa-star star-checked"
+                  : "fa fa-star"
+                : fakeStar === null
                 ? item === true
                   ? "fa fa-star star-checked cursor-point"
                   : "fa fa-star cursor-point"
                 : index <= fakeStar
-                ? "fa fa-star star-checked cursor-point"
+                ? "fa fa-star fake-star-checked cursor-point"
                 : "fa fa-star cursor-point"
             }
             onClick={() => {
+              if (isAdjustable === false) {
+                return;
+              }
               console.log("별점 : ", index + 1);
               initStarRate(index + 1);
             }}
             onMouseEnter={() => {
+              if (isAdjustable === false) {
+                return;
+              }
               setFakeStar(index);
             }}
             onMouseLeave={() => {
+              if (isAdjustable === false) {
+                return;
+              }
               setFakeStar(null);
             }}
-          ></span>
+          />
         );
       })}
       {/* <span class="fa fa-star star-checked"></span> */}

@@ -1,12 +1,32 @@
 * {
   margin: 0;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   text-decoration-line: none;
   color: inherit;
 }
 
+::-webkit-scrollbar {
+  width: 15px; /*스크롤바의 너비*/
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #006400; /*스크롤바의 색상*/
+  background-clip: padding-box;
+  border: 5px solid transparent;
+  border-radius: 15px;
+}
+
+::-webkit-scrollbar-track {
+  opacity: 0; /*스크롤바 트랙 색상*/
+}
+
 .star-checked {
   color: orange;
+}
+
+.fake-star-checked {
+  color: orange;
+  opacity: 0.5;
 }
 
 body {
