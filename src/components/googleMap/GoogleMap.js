@@ -1,14 +1,18 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import Button from "../Button";
-import Input from "../Input";
 import Modal from "../Modal";
 import StarRate from "../StarRate";
+import { reviewsActions } from "../../redux/reviews";
+import { useSelector, useDispatch } from "react-redux";
 
 const GoogleMap = ({ className, location }) => {
+  const dispatch = useDispatch();
+  const reviews = useSelector((state) => state.reviews);
+
   const [maps, setMaps] = useState(null);
   const [placeDetail, setPlaceDetail] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [starRate, setStareRate] = useState(0);
+  const [starRate, setStarRate] = useState(0);
   const currentPositionMarker = useRef(null);
   const clickedLocation = useRef({
     latitude: null,
@@ -18,6 +22,19 @@ const GoogleMap = ({ className, location }) => {
   const mapRef = useRef(null);
   const selectedLocationMarker = useRef(null);
 
+  const initReviewtData = {
+    placeId: "",
+    location: { lat: 0, lng: 0 },
+    placeName: "",
+    placeAddress: "",
+    placePhoneNumber: "",
+    starRate: 0,
+    reviewText: "",
+  };
+  const [reviewData, setReviewData] = useState(initReviewtData);
+  const reviewsMarkers = useRef([]);
+
+  // 지도 최초 정의
   const initMap = useCallback(() => {
     const loca = { lat: location.latitude, lng: location.longitude };
     let markers = [];
@@ -111,11 +128,13 @@ const GoogleMap = ({ className, location }) => {
       window.google.maps.event.addListener(map, "click", (event) => {
         const lat = event.latLng.lat();
         const lng = event.latLng.lng();
+
         clickedLocation.current = {
           latitude: lat,
           longitude: lng,
           placeId: event.placeId,
         };
+
         map.panTo({ lat: lat, lng: lng });
 
         // 클릭해서 생성한 마커 제거 및 새로 생성
@@ -160,6 +179,16 @@ const GoogleMap = ({ className, location }) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
               console.log("place === ", place);
               setPlaceDetail(place);
+
+              setReviewData({
+                location: { lat: lat, lng: lng },
+                placeId: event.placeId,
+                placeName: place.name,
+                placeAddress: place.formatted_address,
+                placePhoneNumber: place.formatted_phone_number,
+                starRate: 0,
+                reviewText: "",
+              });
             }
           };
 
@@ -173,19 +202,88 @@ const GoogleMap = ({ className, location }) => {
     }
   }, [mapRef, location, maps]);
 
+  const resetStarRate = () => {
+    setStarRate(0);
+  };
+
+  const resetPlaceDetail = () => {
+    setPlaceDetail({});
+  };
+
+  const resetReviewData = () => {
+    setReviewData(initReviewtData);
+  };
+
+  const saveReviewData = () => {
+    dispatch(reviewsActions.reviewAdd(reviewData));
+    resetReviewData();
+    resetStarRate();
+    setIsModalOpen(false);
+  };
+
+  const validCheck = (value) => {
+    let errors = [];
+
+    if (value.placeId === "") {
+      errors.push("placeId는 필수 값입니다.");
+    }
+
+    return errors;
+  };
+
   useEffect(() => {
     initMap();
   }, [initMap]);
 
   useEffect(() => {
-    console.log("maps === ", mapRef);
-  }, [mapRef]);
+    setReviewData({ ...reviewData, starRate: starRate });
+  }, [starRate]);
 
-  /*   useEffect(() => {
-    if (maps && searchAddress.info && searchAddress.location) {
-      maps.panToBounds(searchAddress.location);
+  useEffect(() => {
+    if (reviews.length !== 0 && maps) {
+      // 기존의 리뷰마커 제거
+      reviewsMarkers.current.forEach((marker) => {
+        marker.setMap(null);
+      });
+      let markers = [];
+
+      const svgMarker = {
+        path: "M10.453 14.016l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM12 2.016q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
+        fillColor: "blue",
+        fillOpacity: 0.8,
+        strokeWeight: 0,
+        rotation: 0,
+        scale: 1.5,
+        anchor: new window.google.maps.Point(12, 30),
+      };
+
+      reviews.map((review) => {
+        markers.push(
+          new window.google.maps.Marker({
+            map: maps,
+            icon: svgMarker,
+            title: review.placeName,
+            position: review.location,
+            animation: window.google.maps.Animation.DROP,
+          })
+        );
+      });
+
+      reviewsMarkers.current = markers;
     }
-  }, [searchAddress, maps]); */
+  }, [reviews, maps]);
+
+  /* useEffect(() => {
+    console.log("maps === ", mapRef);
+  }, [mapRef]); */
+
+  useEffect(() => {
+    console.log("reviews !!!!!!!!!! ", reviews);
+  }, [reviews]);
+
+  /* useEffect(() => {
+    console.log("reviewData === ", reviewData);
+  }, [reviewData]); */
 
   return (
     <>
@@ -205,7 +303,8 @@ const GoogleMap = ({ className, location }) => {
             viewBox="0 0 320 512"
             className="close-button"
             onClick={() => {
-              setPlaceDetail({});
+              resetReviewData();
+              resetPlaceDetail();
             }}
           >
             <path d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z" />
@@ -232,7 +331,7 @@ const GoogleMap = ({ className, location }) => {
           }}
         >
           {/* 리뷰 사진 */}
-          <div
+          {/* <div
             style={{
               display: "flex",
               flexDirection: "row",
@@ -269,9 +368,9 @@ const GoogleMap = ({ className, location }) => {
                   </a>
                 );
               })}
-          </div>
+          </div> */}
           {/* 리뷰 */}
-          {placeDetail.reviews ? (
+          {/* {placeDetail.reviews ? (
             placeDetail.reviews.map((review, index) => {
               return (
                 <div
@@ -318,7 +417,7 @@ const GoogleMap = ({ className, location }) => {
             <div
               style={{ textAlign: "center", margin: "5%" }}
             >{`리뷰가 없습니다.`}</div>
-          )}
+          )} */}
         </div>
       </aside>
       <div id="map" ref={mapRef} className={`${className}`} />
@@ -360,7 +459,7 @@ const GoogleMap = ({ className, location }) => {
           <StarRate
             maxStarCount={5}
             starRate={starRate}
-            setStareRate={setStareRate}
+            setStarRate={setStarRate}
             isModalOpen={isModalOpen}
             style={{ marginBottom: "1%" }}
           />
@@ -381,22 +480,9 @@ const GoogleMap = ({ className, location }) => {
             margin: "auto",
           }}
         >
-          <Input
-            type={"text"}
-            placeholder={"제목"}
-            style={{
-              display: "block",
-              width: "85%",
-              height: "7%",
-              margin: "auto",
-              padding: "1%",
-              fontSize: "large",
-              border: "1px solid lightgrey",
-              borderRadius: "1vw",
-            }}
-          />
           <textarea
             placeholder={"내용"}
+            value={reviewData.reviewText}
             style={{
               display: "block",
               width: "85%",
@@ -408,6 +494,12 @@ const GoogleMap = ({ className, location }) => {
               borderRadius: "1vw",
               resize: "none",
             }}
+            onChange={(e) => {
+              setReviewData({
+                ...reviewData,
+                reviewText: e.target.value,
+              });
+            }}
           />
         </div>
         <footer
@@ -418,7 +510,9 @@ const GoogleMap = ({ className, location }) => {
             margin: "1vw",
           }}
         >
-          <Button type={"button"}>저장</Button>
+          <Button type={"button"} onClick={saveReviewData}>
+            저장
+          </Button>
         </footer>
       </Modal>
     </>

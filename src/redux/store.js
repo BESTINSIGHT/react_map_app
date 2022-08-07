@@ -1,19 +1,8 @@
-import { createStore } from "redux";
+import { configureStore } from "@reduxjs/toolkit";
+import reviewsReducer from "./reviews";
 
-const reviewsReducer = (reviews = [], action) => {
-  if(action.type === "add") {
-    return [...reviews, action.review]
-  }
-  if(action.type === "edit") {
-
-  }
-  if(action.type === "remove") {
-
-  }
-
-  return reviews
-}
-
-const store = createStore(reviewsReducer);
+const store = configureStore({
+  reducer: { reviews: reviewsReducer },
+});
 
 export default store;

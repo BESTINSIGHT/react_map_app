@@ -23,12 +23,6 @@ const StarRate = ({
   };
 
   useEffect(() => {
-    if (isModalOpen === false) {
-      initStarRate(0);
-    }
-  }, [isModalOpen]);
-
-  useEffect(() => {
     initStarRate(starRate);
   }, [starRate]);
 
@@ -58,6 +52,7 @@ const StarRate = ({
               }
               console.log("별점 : ", index + 1);
               initStarRate(index + 1);
+              setStarRate(index + 1);
             }}
             onMouseEnter={() => {
               if (isAdjustable === false) {

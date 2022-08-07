@@ -10,7 +10,6 @@ const Modal = ({ children, isOpen, setIsOpen, className }) => {
     };
     window.addEventListener("keydown", escKeyModalClose);
     return () => {
-      console.log("디스럭트");
       window.removeEventListener("keydown", escKeyModalClose);
     };
   }, []);

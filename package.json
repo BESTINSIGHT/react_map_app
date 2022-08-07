@@ -1,6 +1,10 @@
 {
   "name": "react_map_app",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "author": {
+    "name": "Yunseok Jang",
+    "email": "ysjang@korens.co.kr"
+  },
   "private": true,
   "dependencies": {
     "@reduxjs/toolkit": "^1.8.3",
