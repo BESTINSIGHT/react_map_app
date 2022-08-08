@@ -22,17 +22,9 @@ const GoogleMap = ({ className, location }) => {
   const mapRef = useRef(null);
   const selectedLocationMarker = useRef(null);
 
-  const initReviewtData = {
-    placeId: "",
-    location: { lat: 0, lng: 0 },
-    placeName: "",
-    placeAddress: "",
-    placePhoneNumber: "",
-    starRate: 0,
-    reviewText: "",
-  };
-  const [reviewData, setReviewData] = useState(initReviewtData);
+  const [reviewText, setReviewText] = useState("");
   const reviewsMarkers = useRef([]);
+  const [errors, setErrors] = useState();
 
   // 지도 최초 정의
   const initMap = useCallback(() => {
@@ -178,23 +170,29 @@ const GoogleMap = ({ className, location }) => {
           const callback = (place, status) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
               console.log("place === ", place);
-              setPlaceDetail(place);
-
-              setReviewData({
-                location: { lat: lat, lng: lng },
+              const placeLocation = {
+                lat: place.geometry.location.lat(),
+                lng: place.geometry.location.lng(),
+              };
+              const placeInfo = {
+                ...place,
+                placeLocation: placeLocation,
                 placeId: event.placeId,
-                placeName: place.name,
-                placeAddress: place.formatted_address,
-                placePhoneNumber: place.formatted_phone_number,
-                starRate: 0,
-                reviewText: "",
-              });
+              };
+              setPlaceDetail(placeInfo);
+            } else {
+              setPlaceDetail({});
+              console.log("status ============== ", status);
+              console.log("place ============== ", place);
             }
           };
 
           service.getDetails(request, callback);
         }
 
+        if (!event.placeId) {
+          setPlaceDetail({});
+        }
         console.log("event === ", event);
       });
 
@@ -210,25 +208,66 @@ const GoogleMap = ({ className, location }) => {
     setPlaceDetail({});
   };
 
-  const resetReviewData = () => {
-    setReviewData(initReviewtData);
+  const resetReviewText = () => {
+    setReviewText("");
   };
 
   const saveReviewData = () => {
+    const date = new Date();
+
+    const reviewData = {
+      placeId: placeDetail.placeId,
+      location: placeDetail.placeLocation,
+      placeName: placeDetail.name,
+      placeAddress: placeDetail.formatted_address,
+      placePhoneNumber: placeDetail.formatted_phone_number,
+      starRate: starRate,
+      reviewText: reviewText,
+      createdDate: `${date.getUTCFullYear()}-${date.getMonth()}-${date.getDay()}`,
+    };
+
+    if (validCheck(reviewData) === true) {
+      return;
+    }
+
     dispatch(reviewsActions.reviewAdd(reviewData));
-    resetReviewData();
     resetStarRate();
+    resetReviewText();
     setIsModalOpen(false);
   };
 
-  const validCheck = (value) => {
-    let errors = [];
+  const getTextStars = (maxStar, value) => {
+    let stars = "";
 
-    if (value.placeId === "") {
-      errors.push("placeId는 필수 값입니다.");
+    for (let i = 0; i < maxStar; i++) {
+      if (i < value) {
+        stars += "★";
+      } else {
+        stars += "☆";
+      }
     }
 
-    return errors;
+    return stars;
+  };
+
+  const validCheck = (value) => {
+    let errors = {};
+
+    if (!value.placeId) {
+      errors.placeId = "placeId는 필수값입니다.";
+    }
+
+    if (!value.starRate || starRate <= 0) {
+      errors.starRate = "평점을 선택해 주세요.";
+    }
+
+    setErrors(errors);
+
+    if (Object.keys(errors).length === 0) {
+      return false;
+    } else {
+      return true;
+    }
   };
 
   useEffect(() => {
@@ -236,8 +275,8 @@ const GoogleMap = ({ className, location }) => {
   }, [initMap]);
 
   useEffect(() => {
-    setReviewData({ ...reviewData, starRate: starRate });
-  }, [starRate]);
+    console.log("placeDetail === ", placeDetail);
+  }, [placeDetail]);
 
   useEffect(() => {
     if (reviews.length !== 0 && maps) {
@@ -249,24 +288,43 @@ const GoogleMap = ({ className, location }) => {
 
       const svgMarker = {
         path: "M10.453 14.016l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM12 2.016q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
-        fillColor: "blue",
-        fillOpacity: 0.8,
+        fillColor: "orange",
+        fillOpacity: 1,
         strokeWeight: 0,
         rotation: 0,
-        scale: 1.5,
+        scale: 1.7,
         anchor: new window.google.maps.Point(12, 30),
       };
 
-      reviews.map((review) => {
-        markers.push(
-          new window.google.maps.Marker({
+      reviews.map((review, index) => {
+        return setTimeout(() => {
+          const contentString =
+            `<h4>${review.placeName} ${getTextStars(5, review.starRate)}</h4>` +
+            `<div>${review.placeAddress}</div>` +
+            `<div>${review.reviewText}</div>`;
+          const infowindow = new window.google.maps.InfoWindow({
+            content: contentString,
+            maxWidth: 350,
+          });
+
+          const marker = new window.google.maps.Marker({
             map: maps,
             icon: svgMarker,
             title: review.placeName,
             position: review.location,
             animation: window.google.maps.Animation.DROP,
-          })
-        );
+          });
+
+          marker.addListener("click", () => {
+            infowindow.open({
+              anchor: marker,
+              map: maps,
+              shouldFocus: false,
+            });
+          });
+
+          markers.push(marker);
+        }, index * 200);
       });
 
       reviewsMarkers.current = markers;
@@ -280,10 +338,6 @@ const GoogleMap = ({ className, location }) => {
   useEffect(() => {
     console.log("reviews !!!!!!!!!! ", reviews);
   }, [reviews]);
-
-  /* useEffect(() => {
-    console.log("reviewData === ", reviewData);
-  }, [reviewData]); */
 
   return (
     <>
@@ -303,8 +357,8 @@ const GoogleMap = ({ className, location }) => {
             viewBox="0 0 320 512"
             className="close-button"
             onClick={() => {
-              resetReviewData();
               resetPlaceDetail();
+              resetReviewText();
             }}
           >
             <path d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z" />
@@ -471,6 +525,11 @@ const GoogleMap = ({ className, location }) => {
           >
             <path d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z" />
           </svg>
+          {errors && errors.starRate && (
+            <div style={{ color: "tomato", textAlign: "center" }}>
+              {errors.starRate}
+            </div>
+          )}
         </header>
         <div
           style={{
@@ -482,7 +541,7 @@ const GoogleMap = ({ className, location }) => {
         >
           <textarea
             placeholder={"내용"}
-            value={reviewData.reviewText}
+            value={reviewText}
             style={{
               display: "block",
               width: "85%",
@@ -495,10 +554,7 @@ const GoogleMap = ({ className, location }) => {
               resize: "none",
             }}
             onChange={(e) => {
-              setReviewData({
-                ...reviewData,
-                reviewText: e.target.value,
-              });
+              setReviewText(e.target.value);
             }}
           />
         </div>

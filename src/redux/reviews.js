@@ -7,8 +7,8 @@ const reviewsSlice = createSlice({
     reviewAdd(reviews, action) {
       return (reviews = [...reviews, action.payload]);
     },
-    reviewEdit(state) {},
-    reviewRemove(state) {},
+    reviewEdit(reviews) {},
+    reviewRemove(reviews) {},
   },
 });
 

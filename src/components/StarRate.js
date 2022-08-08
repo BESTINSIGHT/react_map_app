@@ -69,7 +69,6 @@ const StarRate = ({
           />
         );
       })}
-      {/* <span class="fa fa-star star-checked"></span> */}
     </div>
   );
 };
