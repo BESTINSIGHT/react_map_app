@@ -4,6 +4,7 @@ import Modal from "../Modal";
 import StarRate from "../StarRate";
 import { reviewsActions } from "../../redux/reviews";
 import { useSelector, useDispatch } from "react-redux";
+import Card from "../Card";
 
 const GoogleMap = ({ className, location }) => {
   const dispatch = useDispatch();
@@ -31,7 +32,7 @@ const GoogleMap = ({ className, location }) => {
       maxWidth: 350,
     })
   );
-  const [asideTap, setAsideTap] = useState();
+  const [isMyReviewAside, setIsMyReviewAside] = useState(false);
 
   // 지도 최초 정의
   const initMap = useCallback(() => {
@@ -46,9 +47,13 @@ const GoogleMap = ({ className, location }) => {
 
       const input = document.getElementById("search-box");
       const button = document.getElementById("move-current-location");
+      const myReviewAsideButton = document.getElementById("my-review-aside");
       const searchBox = new window.google.maps.places.SearchBox(input);
       map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(input);
       map.controls[window.google.maps.ControlPosition.TOP_RIGHT].push(button);
+      map.controls[window.google.maps.ControlPosition.TOP_RIGHT].push(
+        myReviewAsideButton
+      );
 
       map.addListener("bounds_changed", () => {
         searchBox.setBounds(map.getBounds());
@@ -189,8 +194,6 @@ const GoogleMap = ({ className, location }) => {
               setPlaceDetail(placeInfo);
             } else {
               setPlaceDetail({});
-              console.log("status ============== ", status);
-              console.log("place ============== ", place);
             }
           };
 
@@ -357,13 +360,9 @@ const GoogleMap = ({ className, location }) => {
             size={"sm"}
             onClick={() => {
               setIsModalOpen(true);
-              console.log("리뷰작성");
             }}
           >
             {"리뷰 작성"}
-          </Button>
-          <Button size={"sm"} onClick={() => {}}>
-            {"내 리뷰"}
           </Button>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -398,7 +397,7 @@ const GoogleMap = ({ className, location }) => {
           }}
         >
           {/* 리뷰 사진 */}
-          {/* <div
+          <div
             style={{
               display: "flex",
               flexDirection: "row",
@@ -435,9 +434,9 @@ const GoogleMap = ({ className, location }) => {
                   </a>
                 );
               })}
-          </div> */}
+          </div>
           {/* 리뷰 */}
-          {/* {placeDetail.reviews ? (
+          {placeDetail.reviews ? (
             placeDetail.reviews.map((review, index) => {
               return (
                 <div
@@ -484,9 +483,80 @@ const GoogleMap = ({ className, location }) => {
             <div
               style={{ textAlign: "center", margin: "5%" }}
             >{`리뷰가 없습니다.`}</div>
-          )} */}
+          )}
         </div>
       </aside>
+
+      <aside
+        className={
+          isMyReviewAside === true ? "show-map-aside" : "hide-map-aside"
+        }
+        style={{ overflowY: "auto" }}
+      >
+        <header>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 320 512"
+            className="close-button"
+            onClick={() => {
+              setIsMyReviewAside(false);
+            }}
+          >
+            <path d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z" />
+          </svg>
+        </header>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          {reviews.length !== 0 &&
+            reviews.map((review, index) => {
+              return (
+                <Card
+                  key={index}
+                  className={"cursor-point"}
+                  color={"primary"}
+                  style={{
+                    textAlign: "center",
+                    marginTop: "3%",
+                    marginBottom: "3%",
+                    maxHeight: "10rem",
+                    overflowY: "scroll",
+                    width: "80%",
+                  }}
+                  onClick={() => {
+                    if (maps) {
+                      maps.panTo(review.location);
+                    }
+                  }}
+                >
+                  <h3>{review.placeName}</h3>
+                  <StarRate
+                    maxStarCount={5}
+                    starRate={review.starRate}
+                    isAdjustable={false}
+                  />
+                  <div style={{ marginTop: ".5rem" }}>{review.reviewText}</div>
+                </Card>
+              );
+            })}
+          {reviews.length === 0 && (
+            <Card
+              style={{
+                textAlign: "center",
+                backgroundColor: "forestGreen",
+                color: "white",
+              }}
+            >
+              {"리뷰가 비어있습니다."}
+            </Card>
+          )}
+        </div>
+      </aside>
+
       <div id="map" ref={mapRef} className={`${className}`} />
       <input
         id="search-box"
@@ -497,8 +567,19 @@ const GoogleMap = ({ className, location }) => {
           top: "-100px",
           paddingLeft: "10px",
           paddingRight: "10px",
+          boxShadow: "1px 1px 5px grey",
         }}
       />
+      <Button
+        id="my-review-aside"
+        style={{ position: "absolute", top: "-100px", margin: "5px" }}
+        size={"sm"}
+        onClick={() => {
+          setIsMyReviewAside(!isMyReviewAside);
+        }}
+      >
+        내 리뷰
+      </Button>
       <Button
         id="move-current-location"
         style={{ position: "absolute", top: "-100px", margin: "5px" }}

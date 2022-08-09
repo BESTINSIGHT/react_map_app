@@ -49,7 +49,6 @@ const StarRate = ({
               if (isAdjustable === false) {
                 return;
               }
-              console.log("별점 : ", index + 1);
               initStarRate(index + 1);
               setStarRate(index + 1);
             }}

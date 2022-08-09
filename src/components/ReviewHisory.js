@@ -55,18 +55,19 @@ const ReviewHistory = () => {
                   marginTop: "3%",
                   marginBottom: "3%",
                 }}
+                color={"primary"}
                 onClick={() => {
                   setEditMode(false);
                   setSelectedReview(review);
                 }}
               >
-                <header>{review.placeName}</header>
+                <h3>{review.placeName}</h3>
                 <StarRate
                   maxStarCount={5}
                   starRate={review.starRate}
                   isAdjustable={false}
                 />
-                <div>{review.placeAddress}</div>
+                <div style={{marginTop:".5rem"}}>{review.placeAddress}</div>
               </Card>
             );
           })}
@@ -99,10 +100,13 @@ const ReviewHistory = () => {
           <section style={{ height: "50%", margin: "2%", textAlign: "center" }}>
             <Textarea
               value={selectedReview.reviewText}
+              color={editmode ? "primary": "secondary"}
               resize={false}
               size={"lg"}
               disabled={editmode === true ? false : true}
-              style={{ fontSize: "large" }}
+              style={{
+                fontSize: "large",
+              }}
               onChange={(e) => {
                 setSelectedReview({
                   ...selectedReview,

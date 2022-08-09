@@ -10,7 +10,7 @@ const WelcomePage = () => {
       <div className="welcomePage-wrpper">
         <div className="welcomePage-item">Hello There!</div>
         <div className="welcomePage-item">Welcome To My Google Maps!</div>
-        <Link to={"/MapPage"}>
+        <Link to={"/HomePage"}>
           <div className="welcomePage-item nav animation_start_btn">
             START
           </div>

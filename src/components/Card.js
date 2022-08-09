@@ -1,8 +1,12 @@
 import "../styles/components/card.scss";
 
-const Card = ({ children, className, style, ...props}) => {
+const Card = ({ children, className, style, color, ...props }) => {
   return (
-    <div className={`card ${className}`} style={style} {...props}>
+    <div
+      className={`${className} card-color-${color} card`}
+      style={style}
+      {...props}
+    >
       {children}
     </div>
   );

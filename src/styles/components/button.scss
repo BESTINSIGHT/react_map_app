@@ -4,7 +4,7 @@
   border: 0 solid white;
   border-radius: 0.5rem;
   transition: 0.5s linear;
-  box-shadow: 1px 1px lightgray;
+  box-shadow: 1px 1px 5px grey;
 }
 .btn-color-default:hover {
   background-color: darkgreen;
@@ -18,7 +18,7 @@
   border: 0 solid white;
   border-radius: 0.5rem;
   transition: 0.5s linear;
-  box-shadow: 1px 1px lightgray;
+  box-shadow: 1px 1px grey;
 }
 .btn-color-danger:hover {
   background-color: #f90716;
