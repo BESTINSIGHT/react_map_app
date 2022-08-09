@@ -26,6 +26,13 @@ const GoogleMap = ({ className, location }) => {
   const reviewsMarkers = useRef([]);
   const [errors, setErrors] = useState();
 
+  const infowindowRef = useRef(
+    new window.google.maps.InfoWindow({
+      maxWidth: 350,
+    })
+  );
+  const [asideTap, setAsideTap] = useState();
+
   // 지도 최초 정의
   const initMap = useCallback(() => {
     const loca = { lat: location.latitude, lng: location.longitude };
@@ -270,11 +277,21 @@ const GoogleMap = ({ className, location }) => {
     }
   };
 
+  const infowindowHandler = (contentString, marker, map) => {
+    infowindowRef.current.setContent(contentString);
+    infowindowRef.current.open({
+      anchor: marker,
+      map: map,
+      shouldFocus: false,
+    });
+  };
+
   useEffect(() => {
     initMap();
   }, [initMap]);
 
   useEffect(() => {
+    setStarRate(0);
     console.log("placeDetail === ", placeDetail);
   }, [placeDetail]);
 
@@ -298,15 +315,6 @@ const GoogleMap = ({ className, location }) => {
 
       reviews.map((review, index) => {
         return setTimeout(() => {
-          const contentString =
-            `<h4>${review.placeName} ${getTextStars(5, review.starRate)}</h4>` +
-            `<div>${review.placeAddress}</div>` +
-            `<div>${review.reviewText}</div>`;
-          const infowindow = new window.google.maps.InfoWindow({
-            content: contentString,
-            maxWidth: 350,
-          });
-
           const marker = new window.google.maps.Marker({
             map: maps,
             icon: svgMarker,
@@ -315,12 +323,13 @@ const GoogleMap = ({ className, location }) => {
             animation: window.google.maps.Animation.DROP,
           });
 
+          const contentString =
+            `<h4>${review.placeName} ${getTextStars(5, review.starRate)}</h4>` +
+            `<div>${review.placeAddress}</div>` +
+            `<div>${review.reviewText}</div>`;
+
           marker.addListener("click", () => {
-            infowindow.open({
-              anchor: marker,
-              map: maps,
-              shouldFocus: false,
-            });
+            infowindowHandler(contentString, marker, maps);
           });
 
           markers.push(marker);
@@ -344,13 +353,17 @@ const GoogleMap = ({ className, location }) => {
       <aside className={placeDetail.name ? "show-map-aside" : "hide-map-aside"}>
         <header style={{ margin: "1%" }}>
           <Button
-            style={{ width: "35%", height: "10%" }}
+            style={{ /* width: "35%", height: "10%" */ marginRight: "1%" }}
+            size={"sm"}
             onClick={() => {
               setIsModalOpen(true);
               console.log("리뷰작성");
             }}
           >
             {"리뷰 작성"}
+          </Button>
+          <Button size={"sm"} onClick={() => {}}>
+            {"내 리뷰"}
           </Button>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -478,15 +491,17 @@ const GoogleMap = ({ className, location }) => {
       <input
         id="search-box"
         type="text"
-        placeholder="Search Place"
+        placeholder="장소 검색"
         style={{
           position: "absolute",
           top: "-100px",
+          paddingLeft: "10px",
+          paddingRight: "10px",
         }}
       />
       <Button
         id="move-current-location"
-        style={{ position: "absolute", top: "-100px" }}
+        style={{ position: "absolute", top: "-100px", margin: "5px" }}
         size={"sm"}
         onClick={() => {
           if (maps && location) {
@@ -495,7 +510,7 @@ const GoogleMap = ({ className, location }) => {
           }
         }}
       >
-        My Location
+        내 위치
       </Button>
 
       {/* 리뷰 작성 클릭 시 작동 */}

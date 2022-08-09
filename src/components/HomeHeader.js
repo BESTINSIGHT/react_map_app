@@ -21,7 +21,11 @@ const HomeHeader = ({ className }) => {
                 Map
               </NavLink>
             </li>
-            <li>History</li>
+            <li>
+              <NavLink to={"/ReviewHistoryPage"} exact={"true"}>
+                History
+              </NavLink>
+            </li>
           </ul>
         </nav>
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 const StarRate = ({
   className,
@@ -6,7 +6,6 @@ const StarRate = ({
   maxStarCount,
   starRate = 0,
   setStarRate,
-  isModalOpen,
   isAdjustable = true,
 }) => {
   const [countRate, setCountRate] = useState(

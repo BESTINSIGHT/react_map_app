@@ -2,11 +2,23 @@ import { forwardRef } from "react";
 import "../styles/components/button.scss";
 
 const Button = forwardRef(
-  ({ children, id, className, style, size, onClick, type }, ref) => {
+  (
+    {
+      children,
+      id,
+      className,
+      style,
+      onClick,
+      type,
+      size = "sm",
+      color = "default",
+    },
+    ref
+  ) => {
     return (
       <button
         id={id}
-        className={`${className} btn-${size} btn`}
+        className={`${className} btn-size-${size} btn-color-${color}`}
         type={type}
         style={style}
         onClick={onClick}
