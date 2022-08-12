@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { reviewsActions } from "../redux/reviews";
 import Button from "./Button";
@@ -67,16 +67,32 @@ const ReviewHistory = () => {
                   starRate={review.starRate}
                   isAdjustable={false}
                 />
-                <div style={{marginTop:".5rem"}}>{review.placeAddress}</div>
+                <div style={{ marginTop: ".5rem" }}>{review.placeAddress}</div>
               </Card>
             );
           })}
         {reviews.length === 0 && (
-          <Card style={{ textAlign: "center" }}>{"리뷰가 비어있습니다."}</Card>
+          <Card
+            style={{
+              position: "absolute",
+              left: "20%",
+              right: "20%",
+              top: "30%",
+              textAlign: "center",
+              fontSize: "xx-large",
+              fontWeight: "900",
+              color: "#F9F9F9",
+              backgroundColor: "#610C63",
+              textShadow: "1px 1px 5px grey",
+            }}
+          >
+            {"리뷰가 비어있습니다."}
+          </Card>
         )}
       </aside>
+      {/* 선택된 리뷰가 있을 때 표시 */}
       {Object.keys(selectedReview).length !== 0 && (
-        <main className="reviewHistoryPage-main" style={{ border: "none" }}>
+        <main className="reviewHistoryPage-main">
           <header style={{ textAlign: "center" }}>
             <h2>{selectedReview.placeName}</h2>
             {editmode === true && (
@@ -100,7 +116,7 @@ const ReviewHistory = () => {
           <section style={{ height: "50%", margin: "2%", textAlign: "center" }}>
             <Textarea
               value={selectedReview.reviewText}
-              color={editmode ? "primary": "secondary"}
+              color={editmode ? "primary" : "secondary"}
               resize={false}
               size={"lg"}
               disabled={editmode === true ? false : true}
@@ -115,7 +131,27 @@ const ReviewHistory = () => {
               }}
             />
           </section>
-          <section>{/* 지도 표시 */}</section>
+          {selectedReview.imageURL && selectedReview.imagefiles && (
+            <section style={{ height: "18%" }}>
+              <a
+                href={`${selectedReview.imageURL}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <img
+                  src={`${selectedReview.imageURL}`}
+                  style={{
+                    height: "100%",
+                    display: "flex",
+                    margin: "1rem auto 1rem auto",
+                    borderRadius: "1rem",
+                    boxShadow: "1px 1px 5px grey",
+                  }}
+                  alt={selectedReview.imagefiles.name}
+                />
+              </a>
+            </section>
+          )}
           <footer style={{ display: "flex", justifyContent: "flex-end" }}>
             {editmode === true && (
               <Button

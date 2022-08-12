@@ -5,6 +5,7 @@ import StarRate from "../StarRate";
 import { reviewsActions } from "../../redux/reviews";
 import { useSelector, useDispatch } from "react-redux";
 import Card from "../Card";
+import SearchAddress from "./SearchAddress";
 
 const GoogleMap = ({ className, location }) => {
   const dispatch = useDispatch();
@@ -26,6 +27,8 @@ const GoogleMap = ({ className, location }) => {
   const [reviewText, setReviewText] = useState("");
   const reviewsMarkers = useRef([]);
   const [errors, setErrors] = useState();
+  const [imagefiles, setImageFiles] = useState("");
+  const inputRef = useRef();
 
   const infowindowRef = useRef(
     new window.google.maps.InfoWindow({
@@ -33,6 +36,8 @@ const GoogleMap = ({ className, location }) => {
     })
   );
   const [isMyReviewAside, setIsMyReviewAside] = useState(false);
+
+  const [searchAddressModalOpen, setSearchAddressModalOpen] = useState(false);
 
   // 지도 최초 정의
   const initMap = useCallback(() => {
@@ -43,16 +48,21 @@ const GoogleMap = ({ className, location }) => {
       const map = new window.google.maps.Map(mapRef.current, {
         center: loca,
         zoom: 15,
+        gestureHandling: "cooperative",
       });
 
       const input = document.getElementById("search-box");
       const button = document.getElementById("move-current-location");
       const myReviewAsideButton = document.getElementById("my-review-aside");
+      const SearchAddress = document.getElementById("search-address");
       const searchBox = new window.google.maps.places.SearchBox(input);
       map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(input);
       map.controls[window.google.maps.ControlPosition.TOP_RIGHT].push(button);
       map.controls[window.google.maps.ControlPosition.TOP_RIGHT].push(
         myReviewAsideButton
+      );
+      map.controls[window.google.maps.ControlPosition.TOP_RIGHT].push(
+        SearchAddress
       );
 
       map.addListener("bounds_changed", () => {
@@ -62,6 +72,7 @@ const GoogleMap = ({ className, location }) => {
       searchBox.addListener("places_changed", () => {
         const bounds = new window.google.maps.LatLngBounds();
         const places = searchBox.getPlaces();
+
         if (places.length === 0) {
           return;
         }
@@ -112,7 +123,6 @@ const GoogleMap = ({ className, location }) => {
           });
 
           if (place.geometry.viewport) {
-            // Only geocodes have viewport.
             bounds.union(place.geometry.viewport);
           } else {
             bounds.extend(place.geometry.location);
@@ -194,6 +204,7 @@ const GoogleMap = ({ className, location }) => {
               setPlaceDetail(placeInfo);
             } else {
               setPlaceDetail({});
+              alert("오래된 placeId를 사용하는 장소입니다.");
             }
           };
 
@@ -222,6 +233,11 @@ const GoogleMap = ({ className, location }) => {
     setReviewText("");
   };
 
+  const resetInputFiles = () => {
+    setImageFiles("");
+    inputRef.current.value = "";
+  };
+
   const saveReviewData = () => {
     const date = new Date();
 
@@ -233,7 +249,16 @@ const GoogleMap = ({ className, location }) => {
       placePhoneNumber: placeDetail.formatted_phone_number,
       starRate: starRate,
       reviewText: reviewText,
-      createdDate: `${date.getUTCFullYear()}-${date.getMonth()}-${date.getDay()}`,
+      imagefiles: imagefiles && {
+        ...imagefiles,
+        lastModifiedDate: `${imagefiles.lastModifiedDate.getUTCFullYear()}-${(
+          "0" + imagefiles.lastModifiedDate.getMonth()
+        ).slice(-2)}-${("0" + imagefiles.lastModifiedDate.getDay()).slice(-2)}`,
+      },
+      imageURL: imagefiles && URL.createObjectURL(imagefiles),
+      createdDate: `${date.getUTCFullYear()}-${("0" + date.getMonth()).slice(
+        -2
+      )}-${("0" + date.getDay()).slice(-2)}`,
     };
 
     if (validCheck(reviewData) === true) {
@@ -295,6 +320,7 @@ const GoogleMap = ({ className, location }) => {
 
   useEffect(() => {
     setStarRate(0);
+    resetInputFiles();
     console.log("placeDetail === ", placeDetail);
   }, [placeDetail]);
 
@@ -482,7 +508,7 @@ const GoogleMap = ({ className, location }) => {
           ) : (
             <div
               style={{ textAlign: "center", margin: "5%" }}
-            >{`리뷰가 없습니다.`}</div>
+            >{`리뷰가 비어있습니다.`}</div>
           )}
         </div>
       </aside>
@@ -539,7 +565,6 @@ const GoogleMap = ({ className, location }) => {
                     starRate={review.starRate}
                     isAdjustable={false}
                   />
-                  <div style={{ marginTop: ".5rem" }}>{review.reviewText}</div>
                 </Card>
               );
             })}
@@ -570,6 +595,16 @@ const GoogleMap = ({ className, location }) => {
           boxShadow: "1px 1px 5px grey",
         }}
       />
+      <Button
+        id="search-address"
+        style={{ position: "absolute", top: "-100px", margin: "5px" }}
+        size={"sm"}
+        onClick={() => {
+          setSearchAddressModalOpen(!searchAddressModalOpen);
+        }}
+      >
+        주소 검색
+      </Button>
       <Button
         id="my-review-aside"
         style={{ position: "absolute", top: "-100px", margin: "5px" }}
@@ -638,21 +673,74 @@ const GoogleMap = ({ className, location }) => {
           <textarea
             placeholder={"내용"}
             value={reviewText}
-            style={{
-              display: "block",
-              width: "85%",
-              height: "85%",
-              margin: "1% auto 0 auto",
-              padding: "1%",
-              fontSize: "large",
-              border: "1px solid lightgrey",
-              borderRadius: "1vw",
-              resize: "none",
-            }}
+            style={
+              imagefiles
+                ? {
+                    display: "block",
+                    width: "85%",
+                    height: "55%",
+                    margin: "1% auto 0 auto",
+                    padding: "1%",
+                    fontSize: "large",
+                    border: "1px solid lightgrey",
+                    borderRadius: "1vw",
+                    resize: "none",
+                  }
+                : {
+                    display: "block",
+                    width: "85%",
+                    height: "85%",
+                    margin: "1% auto 0 auto",
+                    padding: "1%",
+                    fontSize: "large",
+                    border: "1px solid lightgrey",
+                    borderRadius: "1vw",
+                    resize: "none",
+                  }
+            }
             onChange={(e) => {
               setReviewText(e.target.value);
             }}
           />
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            {imagefiles && (
+              <div
+                style={{
+                  position: "absolute",
+                  width: "30%",
+                  height: "25%",
+                  margin: "2rem auto 2rem auto",
+                }}
+              >
+                <img
+                  src={`${URL.createObjectURL(imagefiles)}`}
+                  alt={`${imagefiles.name}`}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "1rem",
+                    boxShadow: "1px 1px 5px grey",
+                  }}
+                />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 320 512"
+                  className="close-button"
+                  style={{ position: "absolute", top: "0", right: "0" }}
+                  onClick={resetInputFiles}
+                >
+                  <path d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z" />
+                </svg>
+              </div>
+            )}
+          </div>
         </div>
         <footer
           style={{
@@ -662,10 +750,28 @@ const GoogleMap = ({ className, location }) => {
             margin: "1vw",
           }}
         >
+          <Button style={{ padding: "7px", marginRight: "10px" }}>
+            <input
+              ref={inputRef}
+              type={"file"}
+              accept={"image/jpg,impge/png,image/jpeg,image/gif"}
+              style={{ cursor: "pointer" }}
+              onChange={(e) => {
+                setImageFiles(e.target.files[0]);
+              }}
+            />
+          </Button>
           <Button type={"button"} onClick={saveReviewData}>
             저장
           </Button>
         </footer>
+      </Modal>
+
+      <Modal
+        isOpen={searchAddressModalOpen}
+        setIsOpen={setSearchAddressModalOpen}
+      >
+        <SearchAddress map={maps && maps} />
       </Modal>
     </>
   );

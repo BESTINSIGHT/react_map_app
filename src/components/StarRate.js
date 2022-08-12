@@ -23,6 +23,7 @@ const StarRate = ({
 
   useEffect(() => {
     initStarRate(starRate);
+    // eslint-disable-next-line
   }, [starRate]);
 
   return (

@@ -1,3 +1,5 @@
+import "../styles/components/input.scss";
+
 const Input = ({
   children,
   id,
@@ -7,6 +9,7 @@ const Input = ({
   type,
   placeholder,
   ref,
+  ...props
 }) => {
   return (
     <input
@@ -17,6 +20,7 @@ const Input = ({
       style={style}
       placeholder={placeholder}
       onChange={onChange}
+      {...props}
     >
       {children}
     </input>
